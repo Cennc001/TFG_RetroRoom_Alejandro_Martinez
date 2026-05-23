@@ -22,18 +22,6 @@ Este backend está construido en PHP puro, sin frameworks, y utiliza MySQL como 
 - Campos: `id`, `username`, `email`, `password` (hasheada), `display_name`, `avatar_url`, `rol`, `last_seen`, `created_at`.
 - Roles: `user`, `moderator`, `admin`.
 
-#### `canales`
-
-- Canales de chat.
-- Campos: `id`, `nombre`, `descripcion`, `tipo` (publico/privado/directo), `creado_por`, `creado_at`.
-- Canal general (ID: 1) se crea automáticamente.
-
-#### `miembros_canal`
-
-- Relación muchos-a-muchos entre usuarios y canales.
-- Campos: `id`, `canal_id`, `usuario_id`, `rol` (admin/miembro), `unido_at`.
-- Clave única: `(canal_id, usuario_id)`.
-
 #### `mensajes`
 
 - Mensajes del chat.
@@ -68,7 +56,6 @@ Este archivo es el corazón de la configuración:
   - Verifica que `$_SESSION['usuario_id']` exista.
   - Actualiza `last_seen` del usuario en la BD.
   - Retorna `true` si la sesión es válida.
-- `GENERAL_CHANNEL_ID`: constante para el canal general.
 
 ### `api_base.php`
 
@@ -126,31 +113,6 @@ Todos los endpoints incluyen `require_once '../api_base.php'; apiBase('GET/POST'
 - Retorna datos del usuario.
 
 ### Chat
-
-#### `get_channels.php` (GET, con auth)
-
-- Consulta canales con creador.
-- Retorna lista de canales.
-
-#### `create_channel.php` (POST, con auth)
-
-- Valida permisos (admin/moderator).
-- Inserta nuevo canal.
-- Retorna éxito.
-
-#### `get_channel_members.php` (GET, con auth)
-
-- Lista miembros de un canal.
-- Verifica que el usuario sea miembro.
-
-#### `add_user_to_channel.php` (POST, con auth)
-
-- Agrega usuario a canal.
-- Valida permisos.
-
-#### `remove_user_from_channel.php` (POST, con auth)
-
-- Remueve usuario de canal.
 
 #### `get_messages.php` (GET, con auth)
 
@@ -304,9 +266,8 @@ Todas las respuestas exitosas incluyen `"exito": true` y un mensaje descriptivo:
 - **Credenciales inválidas (401)**: `{"errores": ["Usuario o contraseña incorrectos"]}`
 - **Usuario/email ya existe (409)**: `{"errores": ["El nombre de usuario o email ya esta registrado"]}`
 
-#### Chat y canales
+#### Chat
 
-- **Lista de canales (200)**: `{"exito": true, "canales": [{"id": 1, "nombre": "General", ...}]}`
 - **Lista de mensajes (200)**: `{"exito": true, "mensajes": [{"id": 1, "contenido": "...", "usuario_id": 1, ...}]}`
 - **Mensaje enviado (200)**: `{"exito": true, "mensaje": "Mensaje enviado correctamente"}`
 - **No miembro del canal (403)**: `{"error": "No eres miembro de este canal"}`

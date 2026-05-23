@@ -1,0 +1,11 @@
+{
+  "submission_id": "submit_example_game_valid_20260522",
+  "game_name": "Atrapa el Cuadrado",
+  "game_description": "Ejemplo de código HTML y JS válido de juego.",
+  "author_name": "Admin Ejemplo",
+  "usuario_id": 1,
+  "fecha_envio": "2026-05-22 00:00:00",
+  "status": "aprobado",
+  "archivo_html": "index.html",
+  "archivo_js": "game.js"
+}

@@ -2,7 +2,7 @@
 
 ## 1. Visión general
 
-Este proyecto es una aplicación web con frontend en Vue 3 y backend en PHP. Está diseñada como una plataforma de juegos retro con chat, administración de canales, envíos de código de juegos y ranking basado en puntuaciones.
+Este proyecto es una aplicación web con frontend en Vue 3 y backend en PHP. Está diseñada como una plataforma de juegos retro con chat, envíos de código de juegos y ranking basado en puntuaciones.
 
 ### Componentes principales
 
@@ -45,12 +45,12 @@ Este archivo realiza la configuración global de la aplicación:
 
 - `useAuthStore()` para saber si el usuario está autenticado y obtener el token.
 - `useThemeStore()` para cambiar entre modo oscuro y claro.
-- `useChatStore()` para manejar la visibilidad del chat, el canal actual y los canales disponibles.
+- `useChatStore()` para manejar la visibilidad del chat, el canal actual.
 
 #### Ciclo de vida
 
 - `onMounted()` llama a `authStore.initializeAuth()` para reconstruir la sesión desde `localStorage`.
-- luego carga los canales y la lista de usuarios online.
+- luego carga la lista de usuarios online.
 - también programa una recarga de usuarios online cada 30 segundos.
 - el efecto `watchEffect()` aplica el tema al `document.body` según `themeStore.isDark`.
 
@@ -72,24 +72,14 @@ Este store define el estado de autenticación y ofrece lógica para login, logou
   - `logout()`: limpia el estado y elimina datos de `localStorage`.
   - `initializeAuth()`: lee `localStorage` y reinicia el estado si ya existe sesión.
 
-### `src/stores/theme.js`
-
-Maneja solo el estado del tema:
-
-- `isDark`: booleano.
-- `toggleTheme()`: invierte el modo claro/oscuro.
-
 ### `src/stores/chat.js`
 
 Es un store usando la API composable de Pinia. Mantiene:
 
 - `showChat`: controla si el panel de chat se muestra.
-- `canales`: lista de canales disponibles.
 - `canalActual`: canal seleccionado.
 - `usuariosOnline`: usuarios conectados.
-- `cargandoCanales`, `cargandoUsuarios`: indicadores de carga.
 - `toggleChat()`, `setShowChat()`, `setCanalActual()`: métodos para actualizar el estado.
-- `actualizarCanales()` y `actualizarUsuariosOnline()`.
 - `totalUsuariosOnline`: computed que devuelve la cantidad de usuarios en línea.
 
 ### Relación entre stores y componentes
@@ -111,7 +101,6 @@ Define rutas como:
 - `/login`: `LoginView.vue`
 - `/perfil`: `ProfileView.vue` (requiere auth)
 - `/enviar-codigo`: `SubmitCodeView.vue` (requiere auth)
-- `/admin/canales`: `AdminChannels.vue` (requiere auth)
 - `/admin/submissions`: `AdminSubmissionsView.vue` (requiere auth)
 
 La protección del router se hace con un `beforeEach()`:
@@ -142,10 +131,7 @@ Es un componente de chat en tiempo casi real. Contiene:
 
 ### `App.vue` y el panel de chat
 
-`App.vue` carga la lista de canales y cambia el canal actual a través de `chatStore`.
-
 - Si el usuario no está autenticado, el chat no aparece.
-- `chatStore.canalActual` controla el canal seleccionado.
 - `ChatComp` recibe ese canal y actualiza sus mensajes.
 
 ## 6. Vistas de usuario importantes
@@ -178,14 +164,6 @@ Es un componente de chat en tiempo casi real. Contiene:
 - Muestra modales de éxito/error.
 - Tiene botones para ver el formato aceptado y descargar una plantilla HTML.
 
-### `AdminChannels.vue`
-
-- Panel administrativo para gestionar canales.
-- Consulta `get_channels.php` y `get_users.php`.
-- Crea canales con `create_channel.php`.
-- Administra miembros con `add_user_to_channel.php`, `remove_user_from_channel.php` y `get_channel_members.php`.
-- Usa el token de `authStore` para todas las llamadas.
-
 ### `AdminSubmissionsView.vue`
 
 - Carga envíos de código desde `get_submissions.php`.
@@ -193,6 +171,11 @@ Es un componente de chat en tiempo casi real. Contiene:
 - Permite aprobar o rechazar envíos mediante `review_submission.php`.
 - Genera iframes con `render_submission.php` para previsualizar un envío.
 - El `token` también se pasa en la URL del iframe para autorizar la renderización.
+
+### `UserSubmissionsView.vue`
+
+- Carga envíos de código desde `get_submissions.php`.
+- Muestra el detalle de un envío en una tabla con posibilidad de filtro.
 
 ## 7. Juegos y guardado de puntuaciones
 
@@ -235,56 +218,7 @@ Muchos componentes (`Navbar.vue`, `LoginView.vue`, `ChatComp.vue`, `SubmitCodeVi
 - mejorar la apariencia del formulario.
 - personalizar botones y cards sin afectar al resto.
 
-## 9. Backend PHP: cómo está organizado
-
-### `backend/config.php`
-
-- Define constantes de conexión a la base de datos.
-- Proporciona `obtenerConexionBD()` que devuelve un objeto PDO.
-- Define `verificarToken()`, que realiza:
-  - lectura del header `Authorization`
-  - extracción del token `Bearer`
-  - usa `session_id($token)` y `session_start()` para reconstruir la sesión.
-  - verifica que existe `$_SESSION['usuario_id']`.
-  - actualiza `last_seen` del usuario en la base de datos.
-- Define `GENERAL_CHANNEL_ID`.
-
-### `backend/api_base.php`
-
-- Establece cabeceras CORS (`Access-Control-Allow-Origin: *`, métodos permitidos y headers).
-- Atiende peticiones `OPTIONS` para preflight.
-- valida que el método HTTP sea el esperado.
-- si la ruta requiere auth, llama `verificarToken()`.
-- retorna errores `405` o `401` cuando corresponde.
-
-### `backend/api/login.php`
-
-- Incluye `api_base.php` y `config.php`.
-- Valida `POST` sin autenticación.
-- Lee JSON desde `php://input`.
-- busca el usuario por `username` o `email`.
-- verifica la contraseña con `password_verify()`.
-- inicia sesión con `session_start()`.
-- regenera el id de sesión con `session_regenerate_id(true)`.
-- guarda datos del usuario en `$_SESSION`.
-- devuelve `token: session_id()`.
-
-### `backend/api/get_channels.php`
-
-- Requiere autenticación.
-- Conecta a la base de datos y obtiene la lista de canales junto con el creador.
-- Devuelve JSON con `exito` y `canales`.
-
-### Otros endpoints clave
-
-Aunque el proyecto tiene muchos endpoints, la arquitectura general es:
-
-- cada archivo PHP es un endpoint independiente.
-- usan `apiBase()` para validar CORS, método y token.
-- usan el token de sesión del header para reconstruir la sesión.
-- devuelven JSON estructurado con `exito`, `error`, `mensaje` y datos relevantes.
-
-## 10. Interconexión frontend-backend
+## 9. Interconexión frontend-backend
 
 ### Peticiones autenticadas
 
@@ -305,7 +239,6 @@ Aunque el proyecto tiene muchos endpoints, la arquitectura general es:
 - `LoginView.vue` -> `login.php` -> `authStore.login()`.
 - `ProfileView.vue` -> `get_profile.php` y `update_profile.php`.
 - `ChatComp.vue` -> `get_messages.php`, `send_message.php`.
-- `AdminChannels.vue` -> `get_channels.php`, `create_channel.php`, `get_channel_members.php`, `add_user_to_channel.php`, `remove_user_from_channel.php`.
 - `SubmitCodeView.vue` -> `submit_code.php`.
 - `SnakeGame.vue` -> `save_score.php`.
 - `AdminSubmissionsView.vue` -> `get_submissions.php`, `get_submission_preview.php`, `review_submission.php`, `render_submission.php`.

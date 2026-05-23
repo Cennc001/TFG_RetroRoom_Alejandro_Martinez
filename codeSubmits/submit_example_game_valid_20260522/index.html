@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Atrapa el Cuadrado</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #game {
+      width: 600px;
+      height: 400px;
+      background: #1e293b;
+      border: 3px solid #3b82f6;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    #player {
+      width: 40px;
+      height: 40px;
+      background: #22c55e;
+      position: absolute;
+      left: 280px;
+      top: 180px;
+      border-radius: 6px;
+    }
+
+    #target {
+      width: 30px;
+      height: 30px;
+      background: #ef4444;
+      position: absolute;
+      border-radius: 6px;
+    }
+
+    #score {
+      margin-top: 15px;
+      font-size: 20px;
+    }
+
+    #instructions {
+      margin-top: 10px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Atrapa el Cuadrado</h1>
+
+  <div id="game">
+    <div id="player"></div>
+    <div id="target"></div>
+  </div>
+
+  <div id="score">Puntos: 0</div>
+
+  <div id="instructions">
+    Usa las flechas del teclado para moverte
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /*
  * Este endpoint permite a los usuarios registrarse en la plataforma.
  * Ejemplo de solicitud:

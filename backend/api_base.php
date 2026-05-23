@@ -1,5 +1,4 @@
 <?php
-
 /*
  * Esta funcion base de Api se usa para lo siguiente:
  *   · Access-Control y CORS

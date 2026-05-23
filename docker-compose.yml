@@ -33,10 +33,10 @@ services:
     container_name: retroroom_mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: user
       MYSQL_DATABASE: retroroom
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user
     ports:
       - '3306:3306'
     volumes:
